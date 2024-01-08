@@ -5,7 +5,7 @@
 <a href="#download">Загрузка кода</a><p></p>
 <a href="#start_code">Запуск кода</a><p></p>
 <a href="#text_primer">Пример текста<a><p></p>
-<a href="#what">Загрузка кода</a>
+<a href="#what">Как работает</a>
 
 
 <h2 id="download">Загружаем код</h2>
