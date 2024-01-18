@@ -27,14 +27,80 @@
 
 <h2 id="what">Как работает?</h2>
 <p>В первую очеред мы загружаем и импортируем нужные нам библиотеки и модель Spacy для русского языка</p>
-<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/import.jpg">
+
+```python
+!pip install dateparser
+```
+
+```python
+import spacy
+import dateparser
+```
+
+```python
+!python -m spacy download ru_core_news_md
+```
+
+
+<!--<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/import.jpg">-->
 <p>В данной части кода мы загружаем модель spaCy(для русского языка) обрабатываем текст и извлекаем именованные сущности</p>
-<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/one_code.jpg">
+
+```python
+def extract_named_entities_spacy_russian_bioes(text):
+    nlp = spacy.load("ru_core_news_md")
+    doc = nlp(text)
+
+    named_entities = [(ent.text, ent.start_char, ent.end_char, ent.label_)
+```
+
+<!--<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/one_code.jpg">-->
 <p>Так же мы ищем и извлекаем даты. Мы ищем токен содержащий слово год, и если они соответствуют условиям то они пропускаются. Затем с помощью 'dateparser' мы пытаемся разобрать токен как дату. Если разбор успешен то информация добавляется в список 'named_entities'</p>
-<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/date_code.jpg">
+
+```python
+    for sent in doc.sents:
+        for i, token in enumerate(sent):
+            if token.text.lower() == 'год' and i > 0 and sent[i - 1].is_digit and i < len(sent) - 1 and not sent[i + 1].is_alpha:
+                continue
+            if dateparser.parse(token.text, languages=['ru']):
+                start, end = token.idx, token.idx + len(token)
+                named_entities.append((token.text, start, end, "DATE"))
+
+    return named_entities
+```
+
+
+<!--<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/date_code.jpg">-->
 <p>Мы заменяем английские метки именованных сущностей на русские метки</p>
-<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/rus.jpg">
+
+```python
+def map_to_russian_labels(entity_type):
+    label_mapping = {
+        "PER": "Человек",
+        "LOC": "Локация",
+        "ORG": "Организация",
+        "DATE": "Дата",
+    }
+    return label_mapping.get(entity_type, entity_type)
+```
+
+<!--<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/rus.jpg">-->
 <p>Создаём функцию 'print_entities' которая выводит информацию об именованных сущностях в читаемом для нас формате с использованием русских меток</p>
-<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/output2.jpg">
+
+```python
+def print_entities(entities):
+    for entity, start, end, entity_type in entities:
+        russian_label = map_to_russian_labels(entity_type)
+        print(f"{entity}: {russian_label} ({start}-{end})"
+```
+
+<!--<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/output2.jpg">-->
 <p>После всего кода мы запрашиваем ввод текста от пользователся, вызываем функцию извлечения именованных сущностей, и выводим результат на экран в читаемом виде</p>
-<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/end.jpg">
+
+```python
+if __name__ == "__main__":
+    input_text = input()
+    entities = extract_named_entities_spacy_russian_bioes(input_text)
+    print_entities(entities)
+```
+
+<!--<img src="https://github.com/XiLiCe/Lab2/blob/XiLiCe-patch-2/end.jpg">->
